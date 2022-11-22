@@ -16,7 +16,7 @@ class authController {
         try {
             const errors = validationResult(req)
             if (!errors.isEmpty()) {
-                return res.status(400).json({message: "Ошибка при регистрации", errors})
+                return res.status(400).json({message: "Registration error", errors})
             }
             const {email, password} = req.body
             const candidate = await User.findOne({email})
@@ -41,15 +41,20 @@ class authController {
             const {email, password} = req.body
             const user = await User.findOne({email})
             if (!user) {
-                return res.status(400).json({message: `Пользователь ${email} не найден`})
+                return res.status(400).json({message: `User ${email} not found`})
             }
             const validPassword = bcrypt.compareSync(password, user.password)
             if (!validPassword) {
-                return res.status(400).json({message: `Введен неверный пароль`})
+                return res.status(400).json({message: `Invalid password`})
+            }
+            if(user.status === 'blocked') {
+                return res.status(400).json({message: `User is blocked`})
             }
             await User.updateOne({email}, {lastLoginDate: new Date()})
             const token = generateAccessToken(user._id)
-            return res.json({token})
+            const id = user._id
+            const status = user.status
+            return res.json({token, email, id, status})
         } catch (e) {
             console.log(e)
             res.status(400).json({message: "Login error"})
