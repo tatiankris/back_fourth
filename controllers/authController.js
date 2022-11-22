@@ -3,6 +3,7 @@ const bcrypt = require('bcryptjs')
 const {validationResult} = require('express-validator')
 const jwt = require('jsonwebtoken');
 const {secret} = require('../config/config');
+const authMiddleware = require('../middleware/auth.middleware')
 
 const generateAccessToken = (id) => {
     const payload = {
@@ -16,7 +17,7 @@ class authController {
         try {
             const errors = validationResult(req)
             if (!errors.isEmpty()) {
-                return res.status(400).json({message: "Registration error", errors})
+                return res.status(400).json({message: "Registration error"})
             }
             const {email, password} = req.body
             const candidate = await User.findOne({email})
@@ -61,12 +62,18 @@ class authController {
         }
     }
 
-    async logout(req, res) {
+    async authMe (req, res) {
         try {
+            const user = await User.findOne({_id: req.user.id})
+            const token = jwt.sign({id: user._id}, secret, {expiresIn: "1h"})
+            const email = user.email
+            const id = user._id
+            const status = user.status
 
+            return res.json({token, email, id, status})
         } catch (e) {
             console.log(e)
-            res.status(400).json({message: "Logout error"})
+            return res.status(400).json({message: "Auth error"})
         }
     }
 }
