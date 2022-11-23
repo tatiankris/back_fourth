@@ -1,12 +1,20 @@
 const express = require('express')
 const mongoose = require('mongoose')
+const cors = require('cors')
 
 const authRouter = require('./routes/authRouter')
 const usersRouter = require('./routes/usersRouter')
 const PORT = process.env.PORT || 5000
 const corsMiddleware = require('./middleware/cors.middleware')
 const app = express()
+const corsOptions = {
+    origin: [],
+    credentials: true,
+    optionsSuccessStatus: 200,
+    methods: ['GET', 'PUT', 'POST', 'DELETE']
+}
 
+app.use(cors(corsOptions))
 app.use(corsMiddleware)
 app.use(express.json())
 app.use('/api/auth', authRouter)
@@ -20,6 +28,7 @@ const start = async () => {
         console.log(e)
     }
 }
+
 
 start()
 module.exports = app;
