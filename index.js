@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 5000
 const corsMiddleware = require('./middleware/cors.middleware')
 const app = express()
 const corsOptions = {
-    origin: ['https://front-fourth.vercel.app/', 'http://localhost:3000/'],
+    origin: ['https://front-fourth.vercel.app/', 'http://localhost:3000'],
     credentials: true,
     optionsSuccessStatus: 200,
     methods: ['GET', 'PUT', 'POST', 'DELETE']
