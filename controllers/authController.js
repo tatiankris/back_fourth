@@ -25,8 +25,10 @@ class authController {
                 return res.status(400).json({message: 'User with this name already exist'})
             }
             const hashPassword = bcrypt.hashSync(password, 7);
+
+            const date = new Date().setMilliseconds(3 * 60 * 60 * 1000);
             const user = new User({email, password: hashPassword,
-                registrationDate: new Date(), lastLoginDate: new Date(),
+                registrationDate: new Date(), lastLoginDate: date,
                 status: 'unblocked'
             })
             await user.save()
@@ -51,7 +53,8 @@ class authController {
             if(user.status === 'blocked') {
                 return res.status(400).json({message: `User is blocked`})
             }
-            await User.updateOne({email}, {lastLoginDate: new Date()})
+            const date = new Date().setMilliseconds(3 * 60 * 60 * 1000);
+            await User.updateOne({email}, {lastLoginDate: date})
             const token = generateAccessToken(user._id)
             const id = user._id
             const status = user.status
